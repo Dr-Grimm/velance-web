@@ -1,0 +1,5 @@
+# Velance download redirect
+# Points /download directly to the latest .exe on GitHub Releases
+# Update this URL when a new version is released
+
+/download https://github.com/Dr-Grimm/velance-app/releases/download/v0.9.0-beta.3/Velance-Setup-0.9.0-beta.3.exe 302
