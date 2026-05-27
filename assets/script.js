@@ -189,7 +189,7 @@ authGoogle?.addEventListener('click', async () => {
   try {
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${location.origin}/download` }
+      options: { redirectTo: `${location.origin}/downloading` }
     });
     if (error) { showAuthError(error.message); setBusy(false); }
     // else browser redirects to Google → back to /download
@@ -211,14 +211,14 @@ authForm?.addEventListener('submit', async e => {
     if (isSignup) {
       const { data, error } = await sb.auth.signUp({
         email, password: pass,
-        options: { emailRedirectTo: `${location.origin}/download` }
+        options: { emailRedirectTo: `${location.origin}/downloading` }
       });
       if (error) { showAuthError(error.message); setBusy(false); return; }
 
       if (data.session) {
         // Email confirm disabled — logged in immediately
         closeAuthModal();
-        location.href = '/download';
+        location.href = '/downloading';
       } else {
         // Confirmation email sent
         showAuthSuccess('Almost there! Check your inbox and click the verification link — your download will start automatically.');
@@ -228,7 +228,7 @@ authForm?.addEventListener('submit', async e => {
       const { error } = await sb.auth.signInWithPassword({ email, password: pass });
       if (error) { showAuthError(error.message); setBusy(false); return; }
       closeAuthModal();
-      location.href = '/download';
+      location.href = '/downloading';
     }
   } catch { showAuthError('Something went wrong. Please try again.'); setBusy(false); }
 });
@@ -238,17 +238,17 @@ async function handleDownloadClick(e) {
   e.preventDefault();
 
   // If Supabase not configured → just navigate
-  if (!sb) { location.href = '/download'; return; }
+  if (!sb) { location.href = '/downloading'; return; }
 
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (session) {
-      location.href = '/download';
+      location.href = '/downloading';
     } else {
       openAuthModal();
     }
   } catch {
-    location.href = '/download';
+    location.href = '/downloading';
   }
 }
 

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Downloading Velance…</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+
+    :root {
+      --bg:        #ffffff;
+      --bg-2:      #f7f9fc;
+      --bg-card:   #f2f5fb;
+      --text:      #0a1628;
+      --text-2:    #1e2d45;
+      --text-muted:#5e718a;
+      --text-faint:#9aacbf;
+      --border:    #dde4f0;
+      --teal:  #14b8a6;
+      --sky:   #0ea5e9;
+      --grad:  linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+      --sh-lg: 0 12px 40px rgba(10,22,40,.12), 0 4px 16px rgba(10,22,40,.06);
+      --sh-xl: 0 24px 60px rgba(10,22,40,.16), 0 8px 24px rgba(10,22,40,.08);
+    }
+    [data-theme="dark"] {
+      --bg:        #060d18;
+      --bg-2:      #0a1525;
+      --bg-card:   #0d1b2e;
+      --text:      #e8f0fa;
+      --text-2:    #b8cce0;
+      --text-muted:#5e7a96;
+      --text-faint:#3a5570;
+      --border:    #172840;
+      --sh-lg: 0 12px 40px rgba(0,0,0,.5), 0 4px 16px rgba(0,0,0,.3);
+      --sh-xl: 0 24px 60px rgba(0,0,0,.6), 0 8px 24px rgba(0,0,0,.4);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+      transition: background .3s, color .3s;
+    }
+
+    /* Card */
+    .dl-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 52px 44px 44px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--sh-xl);
+      position: relative;
+      overflow: hidden;
+    }
+    .dl-card::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      top: -240px; left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(14,165,233,.1) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    /* Logo */
+    .dl-logo {
+      width: 72px; height: 72px;
+      border-radius: 20px;
+      margin: 0 auto 28px;
+      box-shadow: 0 6px 24px rgba(14,165,233,.35);
+      animation: float 4s ease-in-out infinite alternate;
+      overflow: hidden;
+    }
+    .dl-logo img { width: 100%; height: 100%; display: block; }
+    @keyframes float {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-8px); }
+    }
+
+    /* Spinner ring */
+    .dl-ring {
+      width: 56px; height: 56px;
+      margin: 0 auto 28px;
+      display: none;
+    }
+    .dl-ring.active { display: block; }
+    .dl-ring svg { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .dl-status {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.15;
+    }
+    .dl-subtitle {
+      font-size: .95rem;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+
+    /* Progress bar */
+    .dl-progress {
+      height: 5px;
+      background: var(--border);
+      border-radius: 100px;
+      overflow: hidden;
+      margin-bottom: 36px;
+      display: none;
+    }
+    .dl-progress.active { display: block; }
+    .dl-progress-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: var(--grad);
+      animation: indeterminate 1.6s ease-in-out infinite;
+    }
+    @keyframes indeterminate {
+      0%   { transform: translateX(-100%) scaleX(.4); }
+      50%  { transform: translateX(0%)    scaleX(.6); }
+      100% { transform: translateX(200%)  scaleX(.4); }
+    }
+
+    /* Manual download button */
+    .dl-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 26px;
+      border-radius: 12px;
+      background: var(--grad);
+      color: #fff;
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      box-shadow: 0 4px 18px rgba(14,165,233,.38);
+      transition: transform .15s, box-shadow .15s, opacity .15s;
+      margin-bottom: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .4s ease, transform .15s, box-shadow .15s;
+    }
+    .dl-btn.ready {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .dl-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(14,165,233,.48); }
+    .dl-btn:active { transform: translateY(0); }
+    .dl-btn svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+    .dl-hint {
+      font-size: .78rem;
+      color: var(--text-faint);
+      margin-bottom: 32px;
+      opacity: 0;
+      transition: opacity .4s ease;
+    }
+    .dl-hint.ready { opacity: 1; }
+
+    /* Meta info */
+    .dl-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: .78rem;
+      color: var(--text-faint);
+      margin-bottom: 28px;
+    }
+    .dl-meta-sep { color: var(--border); }
+
+    /* Divider */
+    .dl-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0 0 20px;
+    }
+
+    /* Back link */
+    .dl-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: color .15s, background .15s;
+    }
+    .dl-back:hover { color: var(--text); background: var(--bg-2); }
+    .dl-back svg { width: 14px; height: 14px; }
+
+    /* Success check */
+    .dl-check {
+      display: none;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: rgba(20,184,166,.1);
+      border: 2px solid rgba(20,184,166,.25);
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      animation: pop .35s cubic-bezier(.4,0,.2,1);
+    }
+    .dl-check.visible { display: flex; }
+    .dl-check svg { width: 24px; height: 24px; color: var(--teal); }
+    @keyframes pop {
+      from { transform: scale(.6); opacity: 0; }
+      to   { transform: scale(1);  opacity: 1; }
+    }
+
+    @media (max-width: 520px) {
+      .dl-card { padding: 40px 24px 32px; }
+      .dl-status { font-size: 1.35rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="dl-card">
+
+  <!-- Logo (shown while loading) -->
+  <div class="dl-logo" id="dl-logo">
+    <img src="/assets/logo.png" alt="Velance" />
+  </div>
+
+  <!-- Success check (shown after download starts) -->
+  <div class="dl-check" id="dl-check">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="dl-progress active" id="dl-progress">
+    <div class="dl-progress-fill"></div>
+  </div>
+
+  <h1 class="dl-status" id="dl-status">Starting your download…</h1>
+  <p class="dl-subtitle" id="dl-subtitle">Hang tight while we prepare your installer.</p>
+
+  <!-- Meta info -->
+  <p class="dl-meta">
+    <span id="dl-version">Latest</span>
+    <span class="dl-meta-sep">·</span>
+    <span id="dl-size">~105 MB</span>
+    <span class="dl-meta-sep">·</span>
+    <span>Windows 10 / 11 · 64-bit</span>
+  </p>
+
+  <!-- Manual download button -->
+  <a id="dl-btn" class="dl-btn" href="#" download>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download Velance
+  </a>
+  <p class="dl-hint" id="dl-hint">Click above if your download didn't start automatically</p>
+
+  <div class="dl-divider"></div>
+
+  <a href="/" class="dl-back">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to velance.org
+  </a>
+
+</div>
+
+<script>
+  // Apply saved theme
+  const saved = localStorage.getItem('velance-theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+
+  const GITHUB_API = 'https://api.github.com/repos/Dr-Grimm/velance-app/releases/latest';
+  const FALLBACK   = 'https://github.com/Dr-Grimm/velance-app/releases/latest';
+
+  const statusEl   = document.getElementById('dl-status');
+  const subtitleEl = document.getElementById('dl-subtitle');
+  const versionEl  = document.getElementById('dl-version');
+  const sizeEl     = document.getElementById('dl-size');
+  const btnEl      = document.getElementById('dl-btn');
+  const hintEl     = document.getElementById('dl-hint');
+  const progressEl = document.getElementById('dl-progress');
+  const checkEl    = document.getElementById('dl-check');
+  const logoEl     = document.getElementById('dl-logo');
+
+  function showManual(url, label) {
+    btnEl.href = url;
+    if (label) btnEl.querySelector('svg').insertAdjacentText('afterend', ' ' + label);
+    btnEl.classList.add('ready');
+    hintEl.classList.add('ready');
+  }
+
+  function showSuccess(tag, sizeMb) {
+    progressEl.classList.remove('active');
+    logoEl.style.display = 'none';
+    checkEl.classList.add('visible');
+    statusEl.textContent = 'Download started!';
+    subtitleEl.textContent = 'Check your browser\'s download bar to track progress.';
+    if (tag) versionEl.textContent = tag;
+    if (sizeMb) sizeEl.textContent = sizeMb + ' MB';
+  }
+
+  async function init() {
+    try {
+      const r = await fetch(GITHUB_API, {
+        headers: { Accept: 'application/vnd.github+json' }
+      });
+      if (!r.ok) throw new Error('api');
+      const data = await r.json();
+      const asset = data.assets?.find(a => a.name.endsWith('.exe'));
+      if (!asset?.browser_download_url) throw new Error('no-exe');
+
+      const url   = asset.browser_download_url;
+      const tag   = data.tag_name || '';
+      const sizeMb = (asset.size / 1024 / 1024).toFixed(1);
+
+      // Update meta
+      if (tag)    versionEl.textContent = tag;
+      if (sizeMb) sizeEl.textContent = sizeMb + ' MB';
+
+      // Wire up manual button
+      btnEl.href = url;
+      btnEl.setAttribute('download', asset.name);
+
+      // Trigger auto-download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = asset.name;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      // Show success after short delay
+      setTimeout(() => showSuccess(tag, sizeMb), 1800);
+
+      // Show manual button after 3s as fallback
+      setTimeout(() => showManual(url), 3000);
+
+    } catch {
+      // Fallback: can't reach API — show manual button pointing to releases page
+      progressEl.classList.remove('active');
+      statusEl.textContent = 'Ready to download';
+      subtitleEl.textContent = 'Click below to download the latest version of Velance.';
+      btnEl.href = FALLBACK;
+      btnEl.removeAttribute('download');
+      btnEl.classList.add('ready');
+      hintEl.style.display = 'none';
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
