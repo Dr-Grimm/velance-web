@@ -19,12 +19,14 @@ export default {
     // ── /download ─────────────────────────────────────────────
     if (url.pathname === '/download') {
       try {
-        const res = await fetch(GITHUB_API, {
-          headers: {
-            'Accept':     'application/vnd.github+json',
-            'User-Agent': 'Velance-Web/1.0 (velance.org)',
-          },
-        });
+        const headers = {
+          'Accept':     'application/vnd.github+json',
+          'User-Agent': 'Velance-Web/1.0 (velance.org)',
+        };
+        // Use token from env secret if available (avoids 60 req/hr rate limit)
+        if (env.GH_TOKEN) headers['Authorization'] = `Bearer ${env.GH_TOKEN}`;
+
+        const res = await fetch(GITHUB_API, { headers });
 
         if (!res.ok) return Response.redirect(FALLBACK, 302);
 
