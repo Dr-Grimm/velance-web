@@ -105,8 +105,8 @@ document.querySelectorAll('[data-target]').forEach(el => counterObs.observe(el))
 /* ── AUTH GATE ─────────────────────────────────────────────────── */
 // ⚠️  Fill in your Supabase project details to enable the download gate.
 //     Leave as-is to skip auth and allow direct downloads.
-const SUPABASE_URL  = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL  = 'https://pypjfeankqhrgbaisgrb.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_K4oN668AW9WzQbWTkRVLaw_o_2sg9Y1';
 
 const AUTH_CONFIGURED = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON !== 'YOUR_SUPABASE_ANON_KEY';
 
